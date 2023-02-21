@@ -15,6 +15,8 @@
         public string sqlmessage { get; set; }
         public string caes_name  { get; set; }
         public string status_end  { get; set; }
+        public string email  { get; set; }
+
     }
 
     public class res_login

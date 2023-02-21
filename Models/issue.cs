@@ -100,5 +100,30 @@ namespace issue_api.Models{
     public string imageThumbnail { get; set; }
     public string imageFullsize { get; set; }
 }
-    
+
+
+    public class res_to_line_and_web
+    {
+        public string res_status { get; set; }
+        public string sqlstatus { get; set; }
+        public string sqlmessage { get; set; }
+        public string caes_name  { get; set; }
+        public string status_end  { get; set; }
+        public string team  { get; set; }
+        public string email  { get; set; }
+        public string programer  { get; set; }
+    }
+
+    public class res_to_email
+    {
+        public string case_name { get; set; }
+        public string question { get; set; }
+        public string company { get; set; }
+
+    }
+
+
+
+
+
  }

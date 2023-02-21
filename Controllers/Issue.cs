@@ -184,13 +184,11 @@ namespace issue_api.Controllers
                     IEnumerable<res> key = await conn.QueryAsync<res>("addnewcase", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
                     LineNotify(
-                    "\n Add by "+files[0].requester+
-                    "\n @Issue:"+res_db[0].caes_name+
-                    "\n Status: NEW "+
-                    "\n Date:"+DateTime.Now.ToString()+
-                    "\n Text:"+files[0].question
+                    "\n 🚩 New"+
+                    "\n Issue: "+res_db[0].caes_name
                     ,0,0);
-                    SendEmail("",res_db[0].caes_name,files[0].question,files[0].requester);
+
+                    // SendEmail("",res_db[0].caes_name,files[0].question,files[0].requester);
                 }
                 return res_db;
 
@@ -207,7 +205,7 @@ namespace issue_api.Controllers
         {
             try
             {
-                List<res> res_db;
+                List<res_to_line_and_web> res_db;
 
                 var productParam = new DynamicParameters();
                 foreach (req_updateissue item in files)
@@ -223,13 +221,46 @@ namespace issue_api.Controllers
                 }
                 using (IDbConnection conn = _connection)
                 {
-                    IEnumerable<res> key = await conn.QueryAsync<res>("Updateissue_byid_admin", productParam, commandType: CommandType.StoredProcedure);
+                    IEnumerable<res_to_line_and_web> key = await conn.QueryAsync<res_to_line_and_web>("Updateissue_byid_admin", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
-                    LineNotify(
-                    "\n Edit by "+files[0].marker+
-                    "\n @Issue:"+files[0].ticketid+
-                    "\n Status:"+res_db[0].status_end
-                    ,0,0);
+
+
+                            LineNotify(
+                            "\n Ticket No. "+files[0].ticketid+
+                            "\n "+res_db[0].res_status+
+                            "\n Date:"+DateTime.Now.ToString()+
+                            "\n By:Team "+res_db[0].team+
+                            "\n Programer: "+res_db[0].programer
+                            ,0,0);
+
+                    // string statusMessage;
+
+                    // switch (res_db[0].status_end.ToLower())
+                    // {
+                    //     case "pending":
+                    //         LineNotify(
+                    //         "\n Ticket No. "+files[0].ticketid+
+                    //         "\n "+res_db[0].res_status+
+                    //         "\n Date:"+DateTime.Now.ToString()+
+                    //         "\n By:Team "+res_db[0].team+
+                    //         "\n Programer: "+res_db[0].programer
+                    //         ,0,0);
+                    //         break;
+                    //     case "waiting from sa":
+                    //         statusMessage = "⏳ Waiting from SA";
+                    //         break;
+                    //     case "work in process":
+                    //         statusMessage = "⚙️ Work in Process";
+                    //         break;
+                    //     case "completed":
+                    //         statusMessage = "✅ Completed";
+                    //         break;
+                    //     default:
+                    //         statusMessage = res_db[0].status_end;
+                    //         break;
+                    // }
+
+
                 }
                 return res_db;
 
@@ -313,7 +344,7 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
         {
               try
     {
-        string encodedMessage = System.Web.HttpUtility.UrlEncode(message, Encoding.UTF8);
+        string encodedMessage = System.Web.HttpUtility.UrlEncode(message , Encoding.UTF8);
         var request = (HttpWebRequest)WebRequest.Create("https://notify-api.line.me/api/notify");
         var postData = "message=" + encodedMessage;
         if (stickerPackageID > 0 && stickerID > 0)
@@ -372,6 +403,13 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                 {
                     IEnumerable<res> key = await conn.QueryAsync<res>("Updatefeedback_pass_byid", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
+
+                     LineNotify(
+                            "\n✅ CLOSED "+
+                            "\n Ticket No. "+files[0].ticketid+
+                            "\n ⭕️ลูกค้ายืนยันการทดสอบ Issue นี้ผ่านแล้ว⭕️"
+                            ,0,0);
+                    // SendEmail("",res_db[0].caes_name,files[0].question,files[0].requester);
                 }
                 return res_db;
 
@@ -401,6 +439,14 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                 {
                     IEnumerable<res> key = await conn.QueryAsync<res>("Updatefeedback_fail_byid", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
+
+                    LineNotify(
+                            "\n⏳ Pending "+
+                            "\n Ticket No. "+files[0].ticketid+
+                            "\n ❌ลูกค้ายืนยันการทดสอบ Issue ยังไม่ผ่าน❌"
+                            ,0,0);
+                            string[] recipients = { "iop.iop254@gmail.com", "tanpisit@similantechnology.com" };
+                     SendEmail_fail(recipients,files[0].ticketid,"","");
                 }
                 return res_db;
 
@@ -413,15 +459,13 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
 
 
-        private void SendEmail(string recipient,string caes_name,string issue,string requester)
+        private void SendEmail(string recipients,string caes_name,string issue,string requester)
         {
             string senderEmail = "spriteolo69@gmail.com";
             string senderPassword = "ypcuzjstzuveabxz";
-            recipient = "iop.iop254@gmail.com";
+            // recipient = "iop.iop254@gmail.com";
             MailMessage message = new MailMessage();
             message.From = new MailAddress(senderEmail);
-            message.To.Add(recipient);
-            message.Subject = "New Issue by "+requester;
             message.Body = 
             @"
          <html>
@@ -434,9 +478,10 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                 </style>
 
                 <div>
-                <p>Requester Issue :"+ requester +@"</p>
-                <p>Issue Ticket :"+ caes_name +@"</p>
-                <p>Issue Detail :"+ issue +@"</p>
+
+                <div>
+                <h1>บริษัทวันรัต (หน่ำเซียน) จำกัด</h1><br>
+                <dd> <p>TicketNO TESTC210223145 </p>
                 </div>
 
                 <div class='main'>
@@ -445,7 +490,10 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                     <a href='http://www.similantechnology.com'>http://www.similantechnology.com </a> <br />
                     <span style='color: blue;'>Tel:</span> 0-2136-4888 (Auto) <br />
                     <span style='color: blue;'>Fax:</span>0-2397-5589 <br />
-                    <span style='color: blue;'>Email:</span> center@similantechnology.com<br>
+                    <span style='color: blue;'>Email:</span> center@similantechnology.com
+                    <br>
+                    <br>
+                    
                     Disclaimer: <br>
                     <span style='color: blue;'>Similan Technology co.,ltd </span> not be liable for any loss
                     or damage arising directly or indirectly from the possession, or any
@@ -455,6 +503,7 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                     Technology co.,ltd.</span> Disclaimer: <span style='color: blue;'>To receive this email, you must not
                     publication or use of or reliance on information obtained.</span>
                 </p>
+                </div>
                 </div>
             </body>
             </html> ";
@@ -469,6 +518,166 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
 
 
+
+        private void SendEmail_pass(string recipient,string caes_name,string issue,string requester)
+        {
+            string senderEmail = "spriteolo69@gmail.com";
+            string senderPassword = "ypcuzjstzuveabxz";
+            recipient = "iop.iop254@gmail.com";
+            MailMessage message = new MailMessage();
+            message.From = new MailAddress(senderEmail);
+            message.To.Add(recipient);
+            message.Subject = "New Issue by "+requester;
+            message.Body = 
+             @"
+        <html >
+    <meta charset='UTF-8' />
+    <link rel='icon' type='image/svg+xml' href='/vite.svg' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+            <body>
+                <style>
+                .main {
+                    line-height: normal;
+                    color: red;
+                }
+                </style>
+
+                <div>
+
+                <div>
+                <h1  style='font-weight:bold' >บริษัท วันรัต (หน่ำเซียน) จำกัด</h1>
+                <dd> <p > <span style='font-weight:bold'>TicketNO</span> TESTC210223145 </p>
+                <dd> <p > * <u> เกิด error ฝั่งsap ในส่วน interface ตามรูป</u>*</p>
+                <dd> <p >ทางลูกค้า ยืนยันว่าได้ทดสอบ issue ข้อนี้ผ่านแล้ว Status > Closed</p>
+
+                </div>
+
+                <div class='main'>
+                <p>
+                    <span style='color: blue;''> Similan Technology Co., Ltd.</span><br />
+                    <a href='http://www.similantechnology.com'>http://www.similantechnology.com </a> <br />
+                    <span style='color: blue;'>Tel:</span> 0-2136-4888 (Auto) <br />
+                    <span style='color: blue;'>Fax:</span>0-2397-5589 <br />
+                    <span style='color: blue;'>Email:</span> center@similantechnology.com
+                    <br>
+                    <br>
+                    
+                    Disclaimer: <br>
+                    <span style='color: blue;'>Similan Technology co.,ltd </span> not be liable for any loss
+                    or damage arising directly or indirectly from the possession, or any
+                    damages caused by any virus attached with this email. In addition, this
+                    email may contain confidential whether or intended solely for the
+                    recipient(s) named above. If you are not the authorized from <span style='color: blue;'> Similan
+                    Technology co.,ltd.</span> Disclaimer: <span style='color: blue;'>To receive this email, you must not
+                    publication or use of or reliance on information obtained.</span>
+                </p>
+                </div>
+                </div>
+            </body>
+            </html> ";
+
+            message.IsBodyHtml = true;
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+            client.UseDefaultCredentials = false;
+            client.Credentials = new System.Net.NetworkCredential(senderEmail, senderPassword);
+            client.EnableSsl = true;
+            client.Send(message);
+        }
+
+        private void SendEmail_fail(string[] recipients,string caes_name,string issue,string requester)
+        {
+            string senderEmail = "spriteolo69@gmail.com";
+            string senderPassword = "ypcuzjstzuveabxz";
+            string result; 
+            // recipient = "iop.iop254@gmail.com";
+            MailMessage message = new MailMessage();
+            message.From = new MailAddress(senderEmail);
+           
+            foreach (string recipient in recipients)
+            {
+                message.To.Add(recipient);
+            }
+ 
+            // var issue_res = issueAsync( caes_name);
+            
+        
+            message.Subject = "New Issue by "+requester;
+            message.Body = 
+            @"
+       <html>
+            <body>
+                <style>
+                .main {
+                    line-height: normal;
+                    color: red;
+                }
+                </style>
+
+    <div>
+
+                <div>
+                <h1>บริษัทวันรัต (หน่ำเซียน) จำกัด</h1><br>
+                <dd> <p>TicketNO TESTC210223145 </p>
+                </div>
+
+                <div class='main'>
+                <p>
+                    <span style='color: blue;''> Similan Technology Co., Ltd.</span><br />
+                    <a href='http://www.similantechnology.com'>http://www.similantechnology.com </a> <br />
+                    <span style='color: blue;'>Tel:</span> 0-2136-4888 (Auto) <br />
+                    <span style='color: blue;'>Fax:</span>0-2397-5589 <br />
+                    <span style='color: blue;'>Email:</span> center@similantechnology.com
+                    <br>
+                    <br>
+                    
+                    Disclaimer: <br>
+                    <span style='color: blue;'>Similan Technology co.,ltd </span> not be liable for any loss
+                    or damage arising directly or indirectly from the possession, or any
+                    damages caused by any virus attached with this email. In addition, this
+                    email may contain confidential whether or intended solely for the
+                    recipient(s) named above. If you are not the authorized from <span style='color: blue;'> Similan
+                    Technology co.,ltd.</span> Disclaimer: <span style='color: blue;'>To receive this email, you must not
+                    publication or use of or reliance on information obtained.</span>
+                </p>
+                </div>
+                </div>
+            </body>
+            </html> ";
+
+            message.IsBodyHtml = true;
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+            client.UseDefaultCredentials = false;
+            client.Credentials = new System.Net.NetworkCredential(senderEmail, senderPassword);
+            client.EnableSsl = true;
+            client.Send(message);
+        }
+
+
+
+
+        private async Task<IActionResult> issueAsync(string case_name)
+        {
+            try
+            {
+                using IDbConnection conn = _connection;
+                var sqlText = @"
+                                SELECT 
+                                CA.case_name,
+                                US.company,
+                                CA.question
+                                FROM  dbo.[case] CA LEFT JOIN
+                                dbo.[user] US ON US.user_id = CA.user_id
+                                WHERE case_name='"+case_name+"'";
+                var result = await conn.QueryAsync<res_to_email>(sqlText);
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
 
 
     }
