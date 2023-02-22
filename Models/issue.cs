@@ -29,6 +29,7 @@ namespace issue_api.Models{
     public class req_ticket
     {
           public string ticketid { get; set; }
+          public string remark { get; set; }
     }
 
     public class res_typedetail

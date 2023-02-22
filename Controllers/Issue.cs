@@ -12,7 +12,7 @@ using System.Web;
 using System.Data.SqlClient;
 using issue_api.Models;
 using System.Net.Mail;
-
+using Newtonsoft.Json.Linq;
 using static issue_api.Models.LoginClass;
 
 
@@ -225,6 +225,14 @@ namespace issue_api.Controllers
                     res_db = key.ToList();
 
 
+
+
+                    // string statusMessage;
+
+                    switch (res_db[0].status_end.ToLower())
+                    {
+                        case "resolved":
+                        {
                             LineNotify(
                             "\n Ticket No. "+files[0].ticketid+
                             "\n "+res_db[0].res_status+
@@ -233,32 +241,28 @@ namespace issue_api.Controllers
                             "\n Programer: "+res_db[0].programer
                             ,0,0);
 
-                    // string statusMessage;
+                    var issue = await  issueAsync(files[0].ticketid);
+                    var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
+                    var isasd = "["+resString+"]";
+                    JArray jsonArray = JArray.Parse(isasd);
+                    string company = (string)jsonArray[0]["Value"][0]["company"];
+                    string issuelog = (string)jsonArray[0]["Value"][0]["question"];
+                    
+                    string[] recipients = { "iop.iop254@gmail.com", "tanpisit@similantechnology.com" };
 
-                    // switch (res_db[0].status_end.ToLower())
-                    // {
-                    //     case "pending":
-                    //         LineNotify(
-                    //         "\n Ticket No. "+files[0].ticketid+
-                    //         "\n "+res_db[0].res_status+
-                    //         "\n Date:"+DateTime.Now.ToString()+
-                    //         "\n By:Team "+res_db[0].team+
-                    //         "\n Programer: "+res_db[0].programer
-                    //         ,0,0);
-                    //         break;
-                    //     case "waiting from sa":
-                    //         statusMessage = "⏳ Waiting from SA";
-                    //         break;
-                    //     case "work in process":
-                    //         statusMessage = "⚙️ Work in Process";
-                    //         break;
-                    //     case "completed":
-                    //         statusMessage = "✅ Completed";
-                    //         break;
-                    //     default:
-                    //         statusMessage = res_db[0].status_end;
-                    //         break;
-                    // }
+                 SendEmail(recipients,files[0].ticketid,issuelog,company,files[0].remark);
+                        }
+                            break;
+                        default:
+                            LineNotify(
+                            "\n Ticket No. "+files[0].ticketid+
+                            "\n "+res_db[0].res_status+
+                            "\n Date:"+DateTime.Now.ToString()+
+                            "\n By:Team "+res_db[0].team+
+                            "\n Programer: "+res_db[0].programer
+                            ,0,0);
+                            break;
+                    }
 
 
                 }
@@ -404,12 +408,21 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                     IEnumerable<res> key = await conn.QueryAsync<res>("Updatefeedback_pass_byid", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
 
+                    var issue = await  issueAsync(files[0].ticketid);
+                    var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
+                    var isasd = "["+resString+"]";
+                    JArray jsonArray = JArray.Parse(isasd);
+                    string company = (string)jsonArray[0]["Value"][0]["company"];
+                    string issuelog = (string)jsonArray[0]["Value"][0]["question"];
+                    Console.WriteLine(company); // Output: test customer
+
                      LineNotify(
                             "\n✅ CLOSED "+
                             "\n Ticket No. "+files[0].ticketid+
                             "\n ⭕️ลูกค้ายืนยันการทดสอบ Issue นี้ผ่านแล้ว⭕️"
                             ,0,0);
-                    // SendEmail("",res_db[0].caes_name,files[0].question,files[0].requester);
+                    // string recipient,string case_name,string issue,string company
+                 SendEmail_pass("",files[0].ticketid,issuelog,company);
                 }
                 return res_db;
 
@@ -433,20 +446,30 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                 {
 
                     productParam.Add("@ticketid", files[0].ticketid);
+                    productParam.Add("@remark", files[0].remark);
 
                 }
                 using (IDbConnection conn = _connection)
                 {
                     IEnumerable<res> key = await conn.QueryAsync<res>("Updatefeedback_fail_byid", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
+                
+                    var issue = await  issueAsync(files[0].ticketid);
+                    var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
+                    var isasd = "["+resString+"]";
+                    JArray jsonArray = JArray.Parse(isasd);
+                    string company = (string)jsonArray[0]["Value"][0]["company"];
+                    Console.WriteLine(company); // Output: test customer
 
                     LineNotify(
                             "\n⏳ Pending "+
                             "\n Ticket No. "+files[0].ticketid+
                             "\n ❌ลูกค้ายืนยันการทดสอบ Issue ยังไม่ผ่าน❌"
                             ,0,0);
-                            string[] recipients = { "iop.iop254@gmail.com", "tanpisit@similantechnology.com" };
-                     SendEmail_fail(recipients,files[0].ticketid,"","");
+                
+                     string[] recipients = { "iop.iop254@gmail.com", "tanpisit@similantechnology.com" };
+                    
+                     SendEmail_fail(recipients,files[0].ticketid,files[0].remark,company);
                 }
                 return res_db;
 
@@ -459,13 +482,20 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
 
 
-        private void SendEmail(string recipients,string caes_name,string issue,string requester)
+        private void SendEmail(string[] recipients,string case_name,string issue,string company,string remark)
         {
             string senderEmail = "spriteolo69@gmail.com";
             string senderPassword = "ypcuzjstzuveabxz";
             // recipient = "iop.iop254@gmail.com";
             MailMessage message = new MailMessage();
+            
+            foreach (string recipient in recipients)
+            {
+                message.To.Add(recipient);
+            }
+            
             message.From = new MailAddress(senderEmail);
+            message.Subject = "Issue ";
             message.Body = 
             @"
          <html>
@@ -480,10 +510,13 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                 <div>
 
                 <div>
-                <h1>บริษัทวันรัต (หน่ำเซียน) จำกัด</h1><br>
-                <dd> <p>TicketNO TESTC210223145 </p>
+
+                <h1  style='font-weight:bold' >"+company+@"</h1>
+                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>"+case_name+" : "+issue+@"</p>
+                <dd> <p > * <u>"+remark+@"</u>*</p>
                 </div>
 
+                <p>***หลังจากที่ระบบแจ้งเตือน Resolved แล้ว ทางลูกค้าไม่ได้ส่งผล ผ่าน/ไม่ผ่าน ภายใน 14 วัน ทางบริษัทขอ Closed Issue โดยอัตโนมัติ***</p>
                 <div class='main'>
                 <p>
                     <span style='color: blue;''> Similan Technology Co., Ltd.</span><br />
@@ -519,15 +552,15 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
 
 
-        private void SendEmail_pass(string recipient,string caes_name,string issue,string requester)
+        private void SendEmail_pass(string recipient,string case_name,string issue,string company)
         {
             string senderEmail = "spriteolo69@gmail.com";
             string senderPassword = "ypcuzjstzuveabxz";
-            recipient = "iop.iop254@gmail.com";
+            recipient = "tanpisit@similantechnology.com";
             MailMessage message = new MailMessage();
             message.From = new MailAddress(senderEmail);
             message.To.Add(recipient);
-            message.Subject = "New Issue by "+requester;
+            message.Subject = "Issue Pass ";
             message.Body = 
              @"
         <html >
@@ -545,9 +578,9 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                 <div>
 
                 <div>
-                <h1  style='font-weight:bold' >บริษัท วันรัต (หน่ำเซียน) จำกัด</h1>
-                <dd> <p > <span style='font-weight:bold'>TicketNO</span> TESTC210223145 </p>
-                <dd> <p > * <u> เกิด error ฝั่งsap ในส่วน interface ตามรูป</u>*</p>
+                <h1  style='font-weight:bold' >"+company+@"</h1>
+                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>"+case_name+@"</p>
+                <dd> <p > * <u>"+issue+@"</u>*</p>
                 <dd> <p >ทางลูกค้า ยืนยันว่าได้ทดสอบ issue ข้อนี้ผ่านแล้ว Status > Closed</p>
 
                 </div>
@@ -561,7 +594,8 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                     <span style='color: blue;'>Email:</span> center@similantechnology.com
                     <br>
                     <br>
-                    
+
+
                     Disclaimer: <br>
                     <span style='color: blue;'>Similan Technology co.,ltd </span> not be liable for any loss
                     or damage arising directly or indirectly from the possession, or any
@@ -584,7 +618,9 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
             client.Send(message);
         }
 
-        private void SendEmail_fail(string[] recipients,string caes_name,string issue,string requester)
+
+
+        private  void SendEmail_fail(string[] recipients,string case_name,string remark,string company)
         {
             string senderEmail = "spriteolo69@gmail.com";
             string senderPassword = "ypcuzjstzuveabxz";
@@ -597,11 +633,11 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
             {
                 message.To.Add(recipient);
             }
- 
-            // var issue_res = issueAsync( caes_name);
-            
-        
-            message.Subject = "New Issue by "+requester;
+
+
+
+            message.Subject = "New Issue by ";
+            message.Subject = "Issue Fail  ";
             message.Body = 
             @"
        <html>
@@ -613,11 +649,15 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                 }
                 </style>
 
-    <div>
+                <div>
 
                 <div>
-                <h1>บริษัทวันรัต (หน่ำเซียน) จำกัด</h1><br>
-                <dd> <p>TicketNO TESTC210223145 </p>
+
+                <h1  style='font-weight:bold' >"+company+@"</h1>
+                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>"+case_name+@"</p>
+                <dd> <p > * <u>"+remark+ @"</u>*</p>
+                <dd> <p >ทางลูกค้า ยืนยันว่าได้ทดสอบ issue ข้อนี้ยังไม่ผ่าน Status > Peading</p>
+                
                 </div>
 
                 <div class='main'>
@@ -655,29 +695,28 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
 
 
-        private async Task<IActionResult> issueAsync(string case_name)
-        {
-            try
+            private async Task<IActionResult> issueAsync(string case_name)
             {
-                using IDbConnection conn = _connection;
-                var sqlText = @"
-                                SELECT 
-                                CA.case_name,
-                                US.company,
-                                CA.question
-                                FROM  dbo.[case] CA LEFT JOIN
-                                dbo.[user] US ON US.user_id = CA.user_id
-                                WHERE case_name='"+case_name+"'";
-                var result = await conn.QueryAsync<res_to_email>(sqlText);
-                return Ok(result);
-
+                try
+                {
+                    using IDbConnection conn = _connection;
+                    var sqlText = @"
+                                    SELECT 
+                                    CA.case_name,
+                                    US.company,
+                                    CA.question
+                                    FROM  dbo.[case] CA LEFT JOIN
+                                    dbo.[user] US ON US.user_id = CA.user_id
+                                    WHERE case_name='"+case_name+"'";
+                    var result = await conn.QueryAsync<res_to_email>(sqlText);
+                    Console.WriteLine("มาแล้วว"+result);
+                    return Ok(result);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-        }
 
 
     }
