@@ -21,8 +21,17 @@ namespace issue_api.Models{
           public string closedate_2 { get; set; }
           public string case_name { get; set; }
           public string sname { get; set; }
-          public string team { get; set; }
-          
+          public string team { get; set; }      
+    }
+
+    public class res_getdatediff
+    {
+          public string question { get; set; }
+          public string status_name { get; set; }
+          public string days { get; set; }
+          public string createdate { get; set; }
+          public string case_name { get; set; }
+ 
     }
 
     

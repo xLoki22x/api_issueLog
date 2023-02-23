@@ -188,7 +188,13 @@ namespace issue_api.Controllers
                     "\n Issue: "+res_db[0].caes_name
                     ,0,0);
 
-                    // SendEmail("",res_db[0].caes_name,files[0].question,files[0].requester);
+                    var issue = await  issueAsync(res_db[0].caes_name);
+                    var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
+                    var isasd = "["+resString+"]";
+                    JArray jsonArray = JArray.Parse(isasd);
+                    string company = (string)jsonArray[0]["Value"][0]["company"];
+
+                    // SendEmail_Newissue(res_db[0].caes_name,files[0].question,company);
                 }
                 return res_db;
 
@@ -250,7 +256,7 @@ namespace issue_api.Controllers
                     
                     string[] recipients = { "iop.iop254@gmail.com", "tanpisit@similantechnology.com" };
 
-                 SendEmail(recipients,files[0].ticketid,issuelog,company,files[0].remark);
+                //  SendEmail(recipients,files[0].ticketid,issuelog,company,files[0].remark);
                         }
                             break;
                         default:
@@ -422,7 +428,7 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                             "\n ⭕️ลูกค้ายืนยันการทดสอบ Issue นี้ผ่านแล้ว⭕️"
                             ,0,0);
                     // string recipient,string case_name,string issue,string company
-                 SendEmail_pass("",files[0].ticketid,issuelog,company);
+                //  SendEmail_pass("",files[0].ticketid,issuelog,company);
                 }
                 return res_db;
 
@@ -469,7 +475,7 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                 
                      string[] recipients = { "iop.iop254@gmail.com", "tanpisit@similantechnology.com" };
                     
-                     SendEmail_fail(recipients,files[0].ticketid,files[0].remark,company);
+                    //  SendEmail_fail(recipients,files[0].ticketid,files[0].remark,company);
                 }
                 return res_db;
 
@@ -517,6 +523,72 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                 </div>
 
                 <p>***หลังจากที่ระบบแจ้งเตือน Resolved แล้ว ทางลูกค้าไม่ได้ส่งผล ผ่าน/ไม่ผ่าน ภายใน 14 วัน ทางบริษัทขอ Closed Issue โดยอัตโนมัติ***</p>
+                <div class='main'>
+                <p>
+                    <span style='color: blue;''> Similan Technology Co., Ltd.</span><br />
+                    <a href='http://www.similantechnology.com'>http://www.similantechnology.com </a> <br />
+                    <span style='color: blue;'>Tel:</span> 0-2136-4888 (Auto) <br />
+                    <span style='color: blue;'>Fax:</span>0-2397-5589 <br />
+                    <span style='color: blue;'>Email:</span> center@similantechnology.com
+                    <br>
+                    <br>
+                    
+                    Disclaimer: <br>
+                    <span style='color: blue;'>Similan Technology co.,ltd </span> not be liable for any loss
+                    or damage arising directly or indirectly from the possession, or any
+                    damages caused by any virus attached with this email. In addition, this
+                    email may contain confidential whether or intended solely for the
+                    recipient(s) named above. If you are not the authorized from <span style='color: blue;'> Similan
+                    Technology co.,ltd.</span> Disclaimer: <span style='color: blue;'>To receive this email, you must not
+                    publication or use of or reliance on information obtained.</span>
+                </p>
+                </div>
+                </div>
+            </body>
+            </html> ";
+
+            message.IsBodyHtml = true;
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+            client.UseDefaultCredentials = false;
+            client.Credentials = new System.Net.NetworkCredential(senderEmail, senderPassword);
+            client.EnableSsl = true;
+            client.Send(message);
+        }
+
+
+        private void SendEmail_Newissue(string case_name,string issue,string company)
+        {
+            string senderEmail = "spriteolo69@gmail.com";
+            string senderPassword = "ypcuzjstzuveabxz";
+            string recipient = "tanpisit@similantechnology.com";
+            MailMessage message = new MailMessage();
+            
+                message.To.Add(recipient);
+
+            
+            message.From = new MailAddress(senderEmail);
+            message.Subject = "NewIssue";
+            message.Body = 
+            @"
+         <html>
+            <body>
+                <style>
+                .main {
+                    line-height: normal;
+                    color: red;
+                }
+                </style>
+
+                <div>
+
+                <div>
+
+                <h1  style='font-weight:bold' >"+company+@"</h1>
+                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>"+case_name+@"</p>
+                <dd> <p > Description * <u>"+issue+@"</u>*</p>
+                </div>
+
+        
                 <div class='main'>
                 <p>
                     <span style='color: blue;''> Similan Technology Co., Ltd.</span><br />
@@ -624,7 +696,6 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
         {
             string senderEmail = "spriteolo69@gmail.com";
             string senderPassword = "ypcuzjstzuveabxz";
-            string result; 
             // recipient = "iop.iop254@gmail.com";
             MailMessage message = new MailMessage();
             message.From = new MailAddress(senderEmail);
@@ -717,6 +788,103 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                     return BadRequest(ex.Message);
                 }
             }
+
+
+
+///////////////////////////////////////////////// DATE DIFF /////////////////////////////
+
+        [HttpGet("get_datediff")]
+        public async Task<dynamic> get_datediff()
+        {
+            try
+            {
+                List<res_getdatediff> res_db;
+                using (IDbConnection conn = _connection)
+                {
+
+                    IEnumerable<res_getdatediff> key = await conn.QueryAsync<res_getdatediff>("Get_Date_DIFF", commandType: CommandType.StoredProcedure);
+                    res_db = key.ToList();
+
+                        foreach(var x in res_db ){
+                             LineNotify(
+                            "\n Ticket No. "+x.case_name+
+                            "\n "+x.status_name+
+                            "\n Date:"+x.createdate+
+                            "\n Description: "+x.question+
+                            "\n Overdue: "+x.days
+                            ,0,0);
+                        }
+                        
+                }
+                return res_db;
+                ;
+            }
+            catch (System.Exception ex)
+            {
+                return "Error" + ex.ToString();
+            }
+        }
+
+
+        [HttpGet("get_report_pending")]
+        public async Task<dynamic> get_report_pending()
+        {
+            try
+            {
+                List<res_getdatediff> res_db;
+                using (IDbConnection conn = _connection)
+                {
+
+                    IEnumerable<res_getdatediff> key = await conn.QueryAsync<res_getdatediff>("Get_Date_DIFF", commandType: CommandType.StoredProcedure);
+                    res_db = key.ToList();
+
+                        foreach(var x in res_db ){
+                             LineNotify(
+                            "\n 📍 Pending Total"+"...."+" Issue 📍 "+
+                            "\n Date : "+
+                            "\n 🚩 New : "+"...."+" Issue"+
+                            "\n ⏳ Pending : "+"...."+" Issue "+
+                            "\n"+
+                            "\n 🟠 Adjustrnents Total 6 Issue "+
+                            "\n Resolved : 5 Issue "+
+                            "\n Closed : 1 Issue "+
+                            "\n ⏳ Pending : 1 Issue "+
+                            "\n 🔺 Woek in Process : 0 Issue "+
+                            "\n 🔺 New : 0 Issue "+
+                            "\n 🔺 Resolved : 0 Issue "+
+                            "\n 🔺 Waitiing Data From Customer : 0 Issue "+
+                            "\n 🔺 Waitiing From SA : 0 Issue "+
+                            "\n 🔺 Testing : 0 Issue "+
+                            "\n"+
+                            "\n 📌 Pending Grand Total 📌"+
+                            "\n (54+5)-2 = 57 Issue"
+                            ,0,0);
+                        }
+                        
+                }
+                return res_db;
+                ;
+            }
+            catch (System.Exception ex)
+            {
+                return "Error" + ex.ToString();
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     }
