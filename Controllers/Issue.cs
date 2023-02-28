@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System;
@@ -7,7 +8,8 @@ using Dapper;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Net;
-using Newtonsoft.Json; 
+using System.Net.Http;
+using Newtonsoft.Json;
 using System.Web;
 using System.Data.SqlClient;
 using issue_api.Models;
@@ -18,14 +20,14 @@ using static issue_api.Models.LoginClass;
 
 namespace issue_api.Controllers
 {
-  [Route("api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
-     public class Issue : ControllerBase
+    public class Issue : ControllerBase
     {
 
-        
- private readonly IDbConnection _connection;
-        
+
+        private readonly IDbConnection _connection;
+
         public Issue(IConfiguration config)
         {
             _connection = new SqlConnection(config.GetConnectionString("DefaultConnection"));
@@ -56,10 +58,10 @@ namespace issue_api.Controllers
             try
             {
 
-            using IDbConnection conn = _connection;
-             var sqlText = "SELECT * FROM dbo.type_detail WHERE type='"+type+"'";
-            var result = await conn.QueryAsync<res_typedetail>(sqlText);
-            return Ok(result);
+                using IDbConnection conn = _connection;
+                var sqlText = "SELECT * FROM dbo.type_detail WHERE type='" + type + "'";
+                var result = await conn.QueryAsync<res_typedetail>(sqlText);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -74,10 +76,10 @@ namespace issue_api.Controllers
             try
             {
 
-            using IDbConnection conn = _connection;
-             var sqlText = "SELECT US.name,team.name AS team,US.user_id FROM  dbo.[user] US LEFT JOIN dbo.team ON team.team_id = US.team WHERE position_id ='3'";
-            var result = await conn.QueryAsync<res_PGname>(sqlText);
-            return Ok(result);
+                using IDbConnection conn = _connection;
+                var sqlText = "SELECT US.name,team.name AS team,US.user_id FROM  dbo.[user] US LEFT JOIN dbo.team ON team.team_id = US.team WHERE position_id ='3'";
+                var result = await conn.QueryAsync<res_PGname>(sqlText);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -93,10 +95,10 @@ namespace issue_api.Controllers
             try
             {
 
-            using IDbConnection conn = _connection;
-             var sqlText = "  SELECT * FROM dbo.priority";
-            var result = await conn.QueryAsync<res_priority>(sqlText);
-            return Ok(result);
+                using IDbConnection conn = _connection;
+                var sqlText = "  SELECT * FROM dbo.priority";
+                var result = await conn.QueryAsync<res_priority>(sqlText);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -111,10 +113,10 @@ namespace issue_api.Controllers
             try
             {
 
-            using IDbConnection conn = _connection;
-             var sqlText = "SELECT * FROM dbo.status";
-            var result = await conn.QueryAsync<res_status>(sqlText);
-            return Ok(result);
+                using IDbConnection conn = _connection;
+                var sqlText = "SELECT * FROM dbo.status";
+                var result = await conn.QueryAsync<res_status>(sqlText);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -123,7 +125,7 @@ namespace issue_api.Controllers
 
         }
 
-          [HttpPost("Editissue_by_id")]
+        [HttpPost("Editissue_by_id")]
         public async Task<dynamic> Post18([FromBody] req_issue_id[] files)
         {
             try
@@ -143,7 +145,7 @@ namespace issue_api.Controllers
                 {
                     IEnumerable<res_editissuel> key = await conn.QueryAsync<res_editissuel>("editissue_by_id", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
-                  
+
                 }
                 return res_db;
 
@@ -155,7 +157,7 @@ namespace issue_api.Controllers
         }
 
 
-          [HttpPost("Addnewissue")]
+        [HttpPost("Addnewissue")]
         public async Task<dynamic> Addnewissue20([FromBody] req_newissuel[] files)
         {
             try
@@ -177,20 +179,20 @@ namespace issue_api.Controllers
                     productParam.Add("@pic1", files[0].pic1);
                     productParam.Add("@pic2", files[0].pic2);
                     productParam.Add("@pic3", files[0].pic3);
- 
+
                 }
                 using (IDbConnection conn = _connection)
                 {
                     IEnumerable<res> key = await conn.QueryAsync<res>("addnewcase", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
                     LineNotify(
-                    "\n 🚩 New"+
-                    "\n Issue: "+res_db[0].caes_name
-                    ,0,0);
+                    "\n 🚩 New" +
+                    "\n Issue : " + res_db[0].caes_name
+                    , 0, 0);
 
-                    var issue = await  issueAsync(res_db[0].caes_name);
+                    var issue = await issueAsync(res_db[0].caes_name);
                     var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
-                    var isasd = "["+resString+"]";
+                    var isasd = "[" + resString + "]";
                     JArray jsonArray = JArray.Parse(isasd);
                     string company = (string)jsonArray[0]["Value"][0]["company"];
 
@@ -206,7 +208,7 @@ namespace issue_api.Controllers
         }
 
 
-          [HttpPost("Update_issuebyid_admin")]
+        [HttpPost("Update_issuebyid_admin")]
         public async Task<dynamic> Update_issuebyid_admin([FromBody] req_updateissue[] files)
         {
             try
@@ -238,35 +240,35 @@ namespace issue_api.Controllers
                     switch (res_db[0].status_end.ToLower())
                     {
                         case "resolved":
-                        {
-                            LineNotify(
-                            "\n Ticket No. "+files[0].ticketid+
-                            "\n "+res_db[0].res_status+
-                            "\n Date:"+DateTime.Now.ToString()+
-                            "\n By:Team "+res_db[0].team+
-                            "\n Programer: "+res_db[0].programer
-                            ,0,0);
+                            {
+                                LineNotify(
+                                "\n Ticket No : " + files[0].ticketid +
+                                "\n " + res_db[0].res_status +
+                                "\n Date :" + DateTime.Now.ToString() +
+                                "\n By : Team " + res_db[0].team +
+                                "\n Programer : " + res_db[0].programer
+                                , 0, 0);
 
-                    var issue = await  issueAsync(files[0].ticketid);
-                    var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
-                    var isasd = "["+resString+"]";
-                    JArray jsonArray = JArray.Parse(isasd);
-                    string company = (string)jsonArray[0]["Value"][0]["company"];
-                    string issuelog = (string)jsonArray[0]["Value"][0]["question"];
-                    
-                    string[] recipients = { "iop.iop254@gmail.com", "tanpisit@similantechnology.com" };
+                                var issue = await issueAsync(files[0].ticketid);
+                                var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
+                                var isasd = "[" + resString + "]";
+                                JArray jsonArray = JArray.Parse(isasd);
+                                string company = (string)jsonArray[0]["Value"][0]["company"];
+                                string issuelog = (string)jsonArray[0]["Value"][0]["question"];
 
-                //  SendEmail(recipients,files[0].ticketid,issuelog,company,files[0].remark);
-                        }
+                                // string[] recipients = { "iop.iop254@gmail.com", "tanpisit@similantechnology.com" };
+
+                                // SendEmail(recipients,files[0].ticketid,issuelog,company,files[0].remark);
+                            }
                             break;
                         default:
                             LineNotify(
-                            "\n Ticket No. "+files[0].ticketid+
-                            "\n "+res_db[0].res_status+
-                            "\n Date:"+DateTime.Now.ToString()+
-                            "\n By:Team "+res_db[0].team+
-                            "\n Programer: "+res_db[0].programer
-                            ,0,0);
+                            "\n Ticket No : " + files[0].ticketid +
+                            "\n " + res_db[0].res_status +
+                            "\n Date : " + DateTime.Now.ToString() +
+                            "\n By : Team " + res_db[0].team +
+                            "\n Programer : " + res_db[0].programer
+                            , 0, 0);
                             break;
                     }
 
@@ -283,7 +285,7 @@ namespace issue_api.Controllers
 
 
 
-          [HttpPost("Updateissue_by_id")]
+        [HttpPost("Updateissue_by_id")]
         public async Task<dynamic> Updateissue_by_id([FromBody] req_newissuel[] files)
         {
             try
@@ -320,7 +322,7 @@ namespace issue_api.Controllers
         }
 
 
-          [HttpPost("Deleteissue")]
+        [HttpPost("Deleteissue")]
         public async Task<dynamic> Deleteissue([FromBody] req_ticket[] files)
         {
             try
@@ -350,52 +352,53 @@ namespace issue_api.Controllers
 
 
 
-private void LineNotify(string message, int stickerPackageID, int stickerID)
+        private void LineNotify(string message, int stickerPackageID, int stickerID)
         {
-              try
-    {
-        string encodedMessage = System.Web.HttpUtility.UrlEncode(message , Encoding.UTF8);
-        var request = (HttpWebRequest)WebRequest.Create("https://notify-api.line.me/api/notify");
-        var postData = "message=" + encodedMessage;
-        if (stickerPackageID > 0 && stickerID > 0)
-        {
-            postData += "&stickerPackageId=" + stickerPackageID + "&stickerId=" + stickerID;
+            try
+            {
+                HttpClient client = new HttpClient();
+                string encodedMessage = System.Web.HttpUtility.UrlEncode(message, Encoding.UTF8);
+                var request = (HttpWebRequest)WebRequest.Create("https://notify-api.line.me/api/notify");
+                var postData = "message=" + encodedMessage;
+                if (stickerPackageID > 0 && stickerID > 0)
+                {
+                    postData += "&stickerPackageId=" + stickerPackageID + "&stickerId=" + stickerID;
+                }
+                // if (pictureUrl != "")
+                // {
+                //     postData += "&imageThumbnail=" + pictureUrl + "&imageFullsize=" + pictureUrl;
+                // }
+
+                var data = Encoding.UTF8.GetBytes(postData);
+                request.Method = "POST";
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.ContentLength = data.Length;
+                request.Headers.Add("Authorization", "Bearer " + "UV346nKqvHNomyEjrC33zxRKn1PtlFOgKR23iA71hMy");
+                var stream = request.GetRequestStream();
+                stream.Write(data, 0, data.Length);
+                var response = (HttpWebResponse)request.GetResponse();
+                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+            }
+            catch (WebException ex)
+            {
+                var response = (HttpWebResponse)ex.Response;
+                using (var reader = new StreamReader(response.GetResponseStream()))
+                {
+                    string errorMessage = reader.ReadToEnd();
+                    Console.WriteLine("Line Notify API call failed: " + errorMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Line Notify API call failed: " + ex.ToString());
+            }
         }
-        // if (pictureUrl != "")
-        // {
-        //     postData += "&imageThumbnail=" + pictureUrl + "&imageFullsize=" + pictureUrl;
-        // }
-
-        var data = Encoding.UTF8.GetBytes(postData);            
-        request.Method = "POST";
-        request.ContentType = "application/x-www-form-urlencoded";
-        request.ContentLength = data.Length;
-        request.Headers.Add("Authorization", "Bearer " + "UV346nKqvHNomyEjrC33zxRKn1PtlFOgKR23iA71hMy");
-        var stream = request.GetRequestStream();
-        stream.Write(data, 0, data.Length);
-        var response = (HttpWebResponse)request.GetResponse();
-        var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-    }
-    catch (WebException ex)
-    {
-        var response = (HttpWebResponse)ex.Response;
-        using (var reader = new StreamReader(response.GetResponseStream()))
-        {
-            string errorMessage = reader.ReadToEnd();
-            Console.WriteLine("Line Notify API call failed: " + errorMessage);
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("Line Notify API call failed: " + ex.ToString());
-    }
-        }
 
 
 
 
 
-       [HttpPost("Updatefeedback_pass_byid")]
+        [HttpPost("Updatefeedback_pass_byid")]
         public async Task<dynamic> Updatefeedback_pass_byid([FromBody] req_ticket[] files)
         {
             try
@@ -414,21 +417,21 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                     IEnumerable<res> key = await conn.QueryAsync<res>("Updatefeedback_pass_byid", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
 
-                    var issue = await  issueAsync(files[0].ticketid);
+                    var issue = await issueAsync(files[0].ticketid);
                     var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
-                    var isasd = "["+resString+"]";
+                    var isasd = "[" + resString + "]";
                     JArray jsonArray = JArray.Parse(isasd);
                     string company = (string)jsonArray[0]["Value"][0]["company"];
                     string issuelog = (string)jsonArray[0]["Value"][0]["question"];
                     Console.WriteLine(company); // Output: test customer
 
-                     LineNotify(
-                            "\n✅ CLOSED "+
-                            "\n Ticket No. "+files[0].ticketid+
-                            "\n ⭕️ลูกค้ายืนยันการทดสอบ Issue นี้ผ่านแล้ว⭕️"
-                            ,0,0);
+                    LineNotify(
+                           "\n✅ CLOSED " +
+                           "\n Ticket No : " + files[0].ticketid +
+                           "\n ⭕️ลูกค้ายืนยันการทดสอบ Issue นี้ผ่านแล้ว⭕️"
+                           , 0, 0);
                     // string recipient,string case_name,string issue,string company
-                //  SendEmail_pass("",files[0].ticketid,issuelog,company);
+                    //  SendEmail_pass("",files[0].ticketid,issuelog,company);
                 }
                 return res_db;
 
@@ -440,7 +443,7 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
         }
 
 
-       [HttpPost("Updatefeedback_fail_byid")]
+        [HttpPost("Updatefeedback_fail_byid")]
         public async Task<dynamic> Updatefeedback_fail_byid([FromBody] req_ticket[] files)
         {
             try
@@ -459,22 +462,22 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                 {
                     IEnumerable<res> key = await conn.QueryAsync<res>("Updatefeedback_fail_byid", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
-                
-                    var issue = await  issueAsync(files[0].ticketid);
+
+                    var issue = await issueAsync(files[0].ticketid);
                     var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
-                    var isasd = "["+resString+"]";
+                    var isasd = "[" + resString + "]";
                     JArray jsonArray = JArray.Parse(isasd);
                     string company = (string)jsonArray[0]["Value"][0]["company"];
                     Console.WriteLine(company); // Output: test customer
 
                     LineNotify(
-                            "\n⏳ Pending "+
-                            "\n Ticket No. "+files[0].ticketid+
+                            "\n⏳ Pending " +
+                            "\n Ticket No : " + files[0].ticketid +
                             "\n ❌ลูกค้ายืนยันการทดสอบ Issue ยังไม่ผ่าน❌"
-                            ,0,0);
-                
-                     string[] recipients = { "iop.iop254@gmail.com", "tanpisit@similantechnology.com" };
-                    
+                            , 0, 0);
+
+                    string[] recipients = { "iop.iop254@gmail.com", "tanpisit@similantechnology.com" };
+
                     //  SendEmail_fail(recipients,files[0].ticketid,files[0].remark,company);
                 }
                 return res_db;
@@ -488,21 +491,21 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
 
 
-        private void SendEmail(string[] recipients,string case_name,string issue,string company,string remark)
+        private void SendEmail(string[] recipients, string case_name, string issue, string company, string remark)
         {
             string senderEmail = "spriteolo69@gmail.com";
             string senderPassword = "ypcuzjstzuveabxz";
             // recipient = "iop.iop254@gmail.com";
             MailMessage message = new MailMessage();
-            
+
             foreach (string recipient in recipients)
             {
                 message.To.Add(recipient);
             }
-            
+
             message.From = new MailAddress(senderEmail);
             message.Subject = "Issue ";
-            message.Body = 
+            message.Body =
             @"
          <html>
             <body>
@@ -517,9 +520,9 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
                 <div>
 
-                <h1  style='font-weight:bold' >"+company+@"</h1>
-                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>"+case_name+" : "+issue+@"</p>
-                <dd> <p > * <u>"+remark+@"</u>*</p>
+                <h1  style='font-weight:bold' >" + company + @"</h1>
+                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>" + case_name + " : " + issue + @"</p>
+                <dd> <p > * <u>" + remark + @"</u>*</p>
                 </div>
 
                 <p>***หลังจากที่ระบบแจ้งเตือน Resolved แล้ว ทางลูกค้าไม่ได้ส่งผล ผ่าน/ไม่ผ่าน ภายใน 14 วัน ทางบริษัทขอ Closed Issue โดยอัตโนมัติ***</p>
@@ -556,19 +559,19 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
         }
 
 
-        private void SendEmail_Newissue(string case_name,string issue,string company)
+        private void SendEmail_Newissue(string case_name, string issue, string company)
         {
             string senderEmail = "spriteolo69@gmail.com";
             string senderPassword = "ypcuzjstzuveabxz";
             string recipient = "tanpisit@similantechnology.com";
             MailMessage message = new MailMessage();
-            
-                message.To.Add(recipient);
 
-            
+            message.To.Add(recipient);
+
+
             message.From = new MailAddress(senderEmail);
             message.Subject = "NewIssue";
-            message.Body = 
+            message.Body =
             @"
          <html>
             <body>
@@ -583,9 +586,9 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
                 <div>
 
-                <h1  style='font-weight:bold' >"+company+@"</h1>
-                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>"+case_name+@"</p>
-                <dd> <p > Description * <u>"+issue+@"</u>*</p>
+                <h1  style='font-weight:bold' >" + company + @"</h1>
+                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>" + case_name + @"</p>
+                <dd> <p > Description * <u>" + issue + @"</u>*</p>
                 </div>
 
         
@@ -624,7 +627,7 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
 
 
-        private void SendEmail_pass(string recipient,string case_name,string issue,string company)
+        private void SendEmail_pass(string recipient, string case_name, string issue, string company)
         {
             string senderEmail = "spriteolo69@gmail.com";
             string senderPassword = "ypcuzjstzuveabxz";
@@ -633,7 +636,7 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
             message.From = new MailAddress(senderEmail);
             message.To.Add(recipient);
             message.Subject = "Issue Pass ";
-            message.Body = 
+            message.Body =
              @"
         <html >
     <meta charset='UTF-8' />
@@ -650,11 +653,11 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                 <div>
 
                 <div>
-                <h1  style='font-weight:bold' >"+company+@"</h1>
-                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>"+case_name+@"</p>
-                <dd> <p > * <u>"+issue+@"</u>*</p>
+                <h1  style='font-weight:bold' >" + company + @"</h1>
+                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>" + case_name + @"</p>
+                <dd> <p > * <u>" + issue + @"</u>*</p>
                 <dd> <p >ทางลูกค้า ยืนยันว่าได้ทดสอบ issue ข้อนี้ผ่านแล้ว Status > Closed</p>
-
+  
                 </div>
 
                 <div class='main'>
@@ -666,7 +669,6 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                     <span style='color: blue;'>Email:</span> center@similantechnology.com
                     <br>
                     <br>
-
 
                     Disclaimer: <br>
                     <span style='color: blue;'>Similan Technology co.,ltd </span> not be liable for any loss
@@ -692,14 +694,14 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
 
 
-        private  void SendEmail_fail(string[] recipients,string case_name,string remark,string company)
+        private void SendEmail_fail(string[] recipients, string case_name, string remark, string company)
         {
             string senderEmail = "spriteolo69@gmail.com";
             string senderPassword = "ypcuzjstzuveabxz";
             // recipient = "iop.iop254@gmail.com";
             MailMessage message = new MailMessage();
             message.From = new MailAddress(senderEmail);
-           
+
             foreach (string recipient in recipients)
             {
                 message.To.Add(recipient);
@@ -709,7 +711,7 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
             message.Subject = "New Issue by ";
             message.Subject = "Issue Fail  ";
-            message.Body = 
+            message.Body =
             @"
        <html>
             <body>
@@ -724,9 +726,9 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
                 <div>
 
-                <h1  style='font-weight:bold' >"+company+@"</h1>
-                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>"+case_name+@"</p>
-                <dd> <p > * <u>"+remark+ @"</u>*</p>
+                <h1  style='font-weight:bold' >" + company + @"</h1>
+                <dd> <p > <span style='font-weight:bold'>TicketNO. </span>" + case_name + @"</p>
+                <dd> <p > * <u>" + remark + @"</u>*</p>
                 <dd> <p >ทางลูกค้า ยืนยันว่าได้ทดสอบ issue ข้อนี้ยังไม่ผ่าน Status > Peading</p>
                 
                 </div>
@@ -766,32 +768,32 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
 
 
-            private async Task<IActionResult> issueAsync(string case_name)
+        private async Task<IActionResult> issueAsync(string case_name)
+        {
+            try
             {
-                try
-                {
-                    using IDbConnection conn = _connection;
-                    var sqlText = @"
+                using IDbConnection conn = _connection;
+                var sqlText = @"
                                     SELECT 
                                     CA.case_name,
                                     US.company,
                                     CA.question
                                     FROM  dbo.[case] CA LEFT JOIN
                                     dbo.[user] US ON US.user_id = CA.user_id
-                                    WHERE case_name='"+case_name+"'";
-                    var result = await conn.QueryAsync<res_to_email>(sqlText);
-                    Console.WriteLine("มาแล้วว"+result);
-                    return Ok(result);
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(ex.Message);
-                }
+                                    WHERE case_name='" + case_name + "'";
+                var result = await conn.QueryAsync<res_to_email>(sqlText);
+                Console.WriteLine("มาแล้วว" + result);
+                return Ok(result);
             }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
 
 
-///////////////////////////////////////////////// DATE DIFF /////////////////////////////
+        ///////////////////////////////////////////////// DATE DIFF /////////////////////////////
 
         [HttpGet("get_datediff")]
         public async Task<dynamic> get_datediff()
@@ -805,16 +807,17 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                     IEnumerable<res_getdatediff> key = await conn.QueryAsync<res_getdatediff>("Get_Date_DIFF", commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
 
-                        foreach(var x in res_db ){
-                             LineNotify(
-                            "\n Ticket No. "+x.case_name+
-                            "\n "+x.status_name+
-                            "\n Date:"+x.createdate+
-                            "\n Description: "+x.question+
-                            "\n Overdue: "+x.days
-                            ,0,0);
-                        }
-                        
+                    foreach (var x in res_db)
+                    {
+                        LineNotify(
+                       "\n Ticket No. " + x.case_name +
+                       "\n " + x.status_name +
+                       "\n Date:" + x.createdate +
+                       "\n Description: " + x.question +
+                       "\n Overdue: " + x.days
+                       , 0, 0);
+                    }
+
                 }
                 return res_db;
                 ;
@@ -838,29 +841,30 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
                     IEnumerable<res_getdatediff> key = await conn.QueryAsync<res_getdatediff>("Get_Date_DIFF", commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
 
-                        foreach(var x in res_db ){
-                             LineNotify(
-                            "\n 📍 Pending Total"+"...."+" Issue 📍 "+
-                            "\n Date : "+
-                            "\n 🚩 New : "+"...."+" Issue"+
-                            "\n ⏳ Pending : "+"...."+" Issue "+
-                            "\n"+
-                            "\n 🟠 Adjustrnents Total 6 Issue "+
-                            "\n Resolved : 5 Issue "+
-                            "\n Closed : 1 Issue "+
-                            "\n ⏳ Pending : 1 Issue "+
-                            "\n 🔺 Woek in Process : 0 Issue "+
-                            "\n 🔺 New : 0 Issue "+
-                            "\n 🔺 Resolved : 0 Issue "+
-                            "\n 🔺 Waitiing Data From Customer : 0 Issue "+
-                            "\n 🔺 Waitiing From SA : 0 Issue "+
-                            "\n 🔺 Testing : 0 Issue "+
-                            "\n"+
-                            "\n 📌 Pending Grand Total 📌"+
-                            "\n (54+5)-2 = 57 Issue"
-                            ,0,0);
-                        }
-                        
+                    foreach (var x in res_db)
+                    {
+                        LineNotify(
+                       "\n 📍 Pending Total" + "...." + " Issue 📍 " +
+                       "\n Date : " +
+                       "\n 🚩 New : " + "...." + " Issue" +
+                       "\n ⏳ Pending : " + "...." + " Issue " +
+                       "\n" +
+                       "\n 🟠 Adjustrnents Total 6 Issue " +
+                       "\n Resolved : 5 Issue " +
+                       "\n Closed : 1 Issue " +
+                       "\n ⏳ Pending : 1 Issue " +
+                       "\n 🔺 Woek in Process : 0 Issue " +
+                       "\n 🔺 New : 0 Issue " +
+                       "\n 🔺 Resolved : 0 Issue " +
+                       "\n 🔺 Waitiing Data From Customer : 0 Issue " +
+                       "\n 🔺 Waitiing From SA : 0 Issue " +
+                       "\n 🔺 Testing : 0 Issue " +
+                       "\n" +
+                       "\n 📌 Pending Grand Total 📌" +
+                       "\n (54+5)-2 = 57 Issue"
+                       , 0, 0);
+                    }
+
                 }
                 return res_db;
                 ;
@@ -873,6 +877,17 @@ private void LineNotify(string message, int stickerPackageID, int stickerID)
 
 
 
+        private string image_issueall = @"/image_issueall/";
+
+        private void checkDirectoryExists(string dirName)
+        {
+            //Check Folder 
+            bool exists = System.IO.Directory.Exists(dirName);
+            HttpContext context = HttpContext;
+            //Create a directory if not exists
+            if (!exists)
+                System.IO.Directory.CreateDirectory(dirName);
+        }
 
 
 

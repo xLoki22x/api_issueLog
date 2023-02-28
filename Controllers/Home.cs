@@ -72,7 +72,7 @@ namespace issue_api.Controllers
 
         }
 
-    
+
 
         [HttpGet("Report_all")]
         public async Task<dynamic> get55Async()
@@ -153,7 +153,7 @@ namespace issue_api.Controllers
             try
             {
                 List<res_issueall> res_db;
-                 var productParam = new DynamicParameters();
+                var productParam = new DynamicParameters();
                 foreach (Userid item in files)
                 {
 
@@ -163,7 +163,7 @@ namespace issue_api.Controllers
                 using (IDbConnection conn = _connection)
                 {
 
-                    IEnumerable<res_issueall> key = await conn.QueryAsync<res_issueall>("allissue_by_userid",productParam, commandType: CommandType.StoredProcedure);
+                    IEnumerable<res_issueall> key = await conn.QueryAsync<res_issueall>("allissue_by_userid", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
                 }
                 return res_db;
@@ -182,7 +182,7 @@ namespace issue_api.Controllers
             try
             {
                 List<res_issueall> res_db;
-                 var productParam = new DynamicParameters();
+                var productParam = new DynamicParameters();
                 foreach (req_text item in files)
                 {
 
@@ -194,7 +194,7 @@ namespace issue_api.Controllers
                 using (IDbConnection conn = _connection)
                 {
 
-                    IEnumerable<res_issueall> key = await conn.QueryAsync<res_issueall>("allissue_by_search",productParam, commandType: CommandType.StoredProcedure);
+                    IEnumerable<res_issueall> key = await conn.QueryAsync<res_issueall>("allissue_by_search", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
                 }
                 return res_db;
@@ -213,7 +213,7 @@ namespace issue_api.Controllers
 
 
 
-    }
+        }
         [HttpPost("Login")]
         public async Task<dynamic> Post18([FromBody] Loginmodel[] files)
         {
@@ -246,13 +246,13 @@ namespace issue_api.Controllers
         }
 
 
-                [HttpPost("issuelog_all_by_search")]
+        [HttpPost("issuelog_all_by_search")]
         public async Task<dynamic> issuelog_all_by_searchAsync([FromBody] req_issuelog_all_by_search[] files)
         {
             try
             {
                 List<report_all_issuelog> res_db;
-                 var productParam = new DynamicParameters();
+                var productParam = new DynamicParameters();
                 foreach (req_issuelog_all_by_search item in files)
                 {
 
@@ -260,12 +260,13 @@ namespace issue_api.Controllers
                     productParam.Add("@datastart", files[0].datestart);
                     productParam.Add("@dataend", files[0].dateend);
                     productParam.Add("@status", files[0].status);
+                    productParam.Add("@programer", files[0].team);
 
                 }
                 using (IDbConnection conn = _connection)
                 {
 
-                    IEnumerable<report_all_issuelog> key = await conn.QueryAsync<report_all_issuelog>("issuelog_all_by_search",productParam, commandType: CommandType.StoredProcedure);
+                    IEnumerable<report_all_issuelog> key = await conn.QueryAsync<report_all_issuelog>("issuelog_all_by_search", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
                 }
                 return res_db;
@@ -278,13 +279,13 @@ namespace issue_api.Controllers
         }
 
 
-                [HttpPost("Getissue_report_by_user_search")]
+        [HttpPost("Getissue_report_by_user_search")]
         public async Task<dynamic> Getissue_report_by_user_search([FromBody] req_issuelog_all_by_search[] files)
         {
             try
             {
                 List<report_all_issuelog> res_db;
-                 var productParam = new DynamicParameters();
+                var productParam = new DynamicParameters();
                 foreach (req_issuelog_all_by_search item in files)
                 {
 
@@ -298,7 +299,7 @@ namespace issue_api.Controllers
                 using (IDbConnection conn = _connection)
                 {
 
-                    IEnumerable<report_all_issuelog> key = await conn.QueryAsync<report_all_issuelog>("Getissue_report_by_user_search",productParam, commandType: CommandType.StoredProcedure);
+                    IEnumerable<report_all_issuelog> key = await conn.QueryAsync<report_all_issuelog>("Getissue_report_by_user_search", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
                 }
                 return res_db;
@@ -309,7 +310,7 @@ namespace issue_api.Controllers
                 return "Error" + ex.ToString();
             }
         }
-}
+    }
 
 
 }

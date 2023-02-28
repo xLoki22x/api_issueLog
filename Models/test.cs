@@ -24,6 +24,7 @@
         public string datestart { get; set; }
         public string dateend { get; set; }
         public string status { get; set; }
+        public string team { get; set; }
 
     }
     public class res_issueall
