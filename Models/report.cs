@@ -16,6 +16,7 @@ namespace issue_api.Models{
     {
           public string question { get; set; }
           public string status { get; set; }
+          public string count_s { get; set; }
           public string createdate { get; set; }
           public string closedate { get; set; }
           public string closedate_2 { get; set; }

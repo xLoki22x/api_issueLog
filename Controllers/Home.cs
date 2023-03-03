@@ -176,6 +176,35 @@ namespace issue_api.Controllers
         }
 
 
+        [HttpPost("issue_by_PGid")]
+        public async Task<dynamic> issue_by_PGid([FromBody] Userid[] files)
+        {
+            try
+            {
+                List<res_issueall> res_db;
+                var productParam = new DynamicParameters();
+                foreach (Userid item in files)
+                {
+
+                    productParam.Add("@userid", files[0].userid);
+
+                }
+                using (IDbConnection conn = _connection)
+                {
+
+                    IEnumerable<res_issueall> key = await conn.QueryAsync<res_issueall>("allissue_by_PGid", productParam, commandType: CommandType.StoredProcedure);
+                    res_db = key.ToList();
+                }
+                return res_db;
+                ;
+            }
+            catch (System.Exception ex)
+            {
+                return "Error" + ex.ToString();
+            }
+        }
+
+
         [HttpPost("issue_by_search")]
         public async Task<dynamic> issue_by_searchAsync([FromBody] req_text[] files)
         {

@@ -187,7 +187,8 @@ namespace issue_api.Controllers
                     res_db = key.ToList();
                     LineNotify(
                     "\n 🚩 New" +
-                    "\n Issue : " + res_db[0].caes_name
+                    "\n Issue : " + res_db[0].caes_name +
+                    "\n Description : " + files[0].question
                     , 0, 0);
 
                     var issue = await issueAsync(res_db[0].caes_name);
@@ -340,6 +341,13 @@ namespace issue_api.Controllers
                 {
                     IEnumerable<res> key = await conn.QueryAsync<res>("Delete_Ticket_byid", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
+
+                            LineNotify(
+                            "\n Ticket No : " + files[0].ticketid +
+                            "\n ลูกค้าได้ยกเลิก issue แล้ว " +
+                            "\n Date : " + DateTime.Now.ToString() 
+                            , 0, 0);
+
                 }
                 return res_db;
 
