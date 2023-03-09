@@ -2,7 +2,6 @@ D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\issue_api.exe
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\appsettings.Development.json
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\appsettings.json
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\issue_api.dll
-D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\issue_api.deps.json
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\issue_api.runtimeconfig.json
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\issue_api.pdb
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\Dapper.dll
@@ -36,3 +35,4 @@ D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\runtimes\win-x64\native\sni.dl
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\runtimes\win-x86\native\sni.dll
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
+D:\PG_issueSML\issue_api\bin\Debug\net6.0\publish\issue_api.deps.json

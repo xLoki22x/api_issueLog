@@ -113,6 +113,98 @@ private readonly IDbConnection _connection;
             }
         }
 
+        ////////////////////////////////////////////////// date //////////////////////////////////
+
+
+
+        [HttpPost("getreport_status_date")]
+        public async Task<dynamic> getreport_status_date([FromBody] req_report_date[] files)
+        {
+            try
+            {
+                List<res_report> res_db;
+
+                var productParam = new DynamicParameters();
+                foreach (req_report_date item in files)
+                {
+
+                    productParam.Add("@datestart", files[0].datestart);
+                    productParam.Add("@dateend", files[0].dateend);
+
+                }
+                using (IDbConnection conn = _connection)
+                {
+                    IEnumerable<res_report> key = await conn.QueryAsync<res_report>("report_per_date_status", productParam, commandType: CommandType.StoredProcedure);
+                    res_db = key.ToList();
+                }
+                return res_db;
+
+            }
+            catch (System.Exception ex)
+            {
+                return "Error" + ex.ToString();
+            }
+        }
+
+
+        [HttpPost("getreport_programer_date")]
+        public async Task<dynamic> getreport_programer_date([FromBody] req_report_date[] files)
+        {
+            try
+            {
+                List<res_report> res_db;
+
+                var productParam = new DynamicParameters();
+                foreach (req_report_date item in files)
+                {
+
+                     productParam.Add("@datestart", files[0].datestart);
+                    productParam.Add("@dateend", files[0].dateend);
+
+                }
+                using (IDbConnection conn = _connection)
+                {
+                    IEnumerable<res_report> key = await conn.QueryAsync<res_report>("report_per_date_programmer", productParam, commandType: CommandType.StoredProcedure);
+                    res_db = key.ToList();
+                }
+                return res_db;
+
+            }
+            catch (System.Exception ex)
+            {
+                return "Error" + ex.ToString();
+            }
+        }
+
+
+        [HttpPost("getreport_issue_date")]
+        public async Task<dynamic> getreport_issue_date([FromBody] req_report_date[] files)
+        {
+            try
+            {
+                List<res_getreport_issue> res_db;
+
+                var productParam = new DynamicParameters();
+                foreach (req_report_date item in files)
+                {
+                    productParam.Add("@datestart", files[0].datestart);
+                    productParam.Add("@dateend", files[0].dateend);
+
+                }
+                using (IDbConnection conn = _connection)
+                {
+                    IEnumerable<res_getreport_issue> key = await conn.QueryAsync<res_getreport_issue>("getreport_issue_date", productParam, commandType: CommandType.StoredProcedure);
+                    res_db = key.ToList();
+                }
+                return res_db;
+
+            }
+            catch (System.Exception ex)
+            {
+                return "Error" + ex.ToString();
+            }
+        }
+
       
 
     }

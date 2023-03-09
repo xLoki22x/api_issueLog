@@ -52,3 +52,4 @@ D:\PG_issueSML\issue_api\bin\Debug\net6.0\System.Web.Http.dll
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\System.Net.Http.Extensions.dll
 D:\PG_issueSML\issue_api\bin\Debug\net6.0\System.Net.Http.Primitives.dll
+D:\PG_issueSML\issue_api\obj\Debug\net6.0\NuGet\59FDD15E17671B84AD43A5131A35AD3F83E0E19C\MimeTypes\2.4.1\MimeTypes.cs

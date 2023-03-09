@@ -4,6 +4,11 @@ namespace issue_api.Models{
     {
           public string date { get; set; }          
     }
+    public class req_report_date
+    {
+          public string datestart { get; set; }          
+          public string dateend { get; set; }          
+    }
 
     public class res_report
     {

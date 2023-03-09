@@ -156,6 +156,37 @@ namespace issue_api.Controllers
             }
         }
 
+        [HttpPost("Updatefeedback_Approval")]
+        public async Task<dynamic> Updatefeedback_Approval([FromBody] req_ticket[] files)
+        {
+            try
+            {
+                //string res = JsonConvert.SerializeObject(files[0]);
+
+                List<res> res_db;
+
+                var productParam = new DynamicParameters();
+                foreach (req_ticket item in files)
+                {
+
+                    productParam.Add("@ticketid", files[0].ticketid);
+
+                }
+                using (IDbConnection conn = _connection)
+                {
+                    IEnumerable<res> key = await conn.QueryAsync<res>("Updatefeedback_Approval", productParam, commandType: CommandType.StoredProcedure);
+                    res_db = key.ToList();
+
+                }
+                return res_db;
+
+            }
+            catch (System.Exception ex)
+            {
+                return "Error" + ex.ToString();
+            }
+        }
+
 
         [HttpPost("Addnewissue")]
         public async Task<dynamic> Addnewissue20([FromBody] req_newissuel[] files)
@@ -179,6 +210,7 @@ namespace issue_api.Controllers
                     productParam.Add("@pic1", files[0].pic1);
                     productParam.Add("@pic2", files[0].pic2);
                     productParam.Add("@pic3", files[0].pic3);
+                    productParam.Add("@file_issue", files[0].file);
 
                 }
                 using (IDbConnection conn = _connection)
@@ -191,11 +223,11 @@ namespace issue_api.Controllers
                     "\n Description : " + files[0].question
                     , 0, 0);
 
-                    var issue = await issueAsync(res_db[0].caes_name);
-                    var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
-                    var isasd = "[" + resString + "]";
-                    JArray jsonArray = JArray.Parse(isasd);
-                    string company = (string)jsonArray[0]["Value"][0]["company"];
+                    // var issue = await issueAsync(res_db[0].caes_name);
+                    // var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
+                    // var isasd = "[" + resString + "]";
+                    // JArray jsonArray = JArray.Parse(isasd);
+                    // string company = (string)jsonArray[0]["Value"][0]["company"];
 
                     // SendEmail_Newissue(res_db[0].caes_name,files[0].question,company);
                 }
@@ -250,12 +282,12 @@ namespace issue_api.Controllers
                                 "\n Programer : " + res_db[0].programer
                                 , 0, 0);
 
-                                var issue = await issueAsync(files[0].ticketid);
-                                var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
-                                var isasd = "[" + resString + "]";
-                                JArray jsonArray = JArray.Parse(isasd);
-                                string company = (string)jsonArray[0]["Value"][0]["company"];
-                                string issuelog = (string)jsonArray[0]["Value"][0]["question"];
+                                // var issue = await issueAsync(files[0].ticketid);
+                                // var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
+                                // var isasd = "[" + resString + "]";
+                                // JArray jsonArray = JArray.Parse(isasd);
+                                // string company = (string)jsonArray[0]["Value"][0]["company"];
+                                // string issuelog = (string)jsonArray[0]["Value"][0]["question"];
 
                                 // string[] recipients = { "iop.iop254@gmail.com", "tanpisit@similantechnology.com" };
 
@@ -342,11 +374,11 @@ namespace issue_api.Controllers
                     IEnumerable<res> key = await conn.QueryAsync<res>("Delete_Ticket_byid", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
 
-                            LineNotify(
-                            "\n Ticket No : " + files[0].ticketid +
-                            "\n ลูกค้าได้ยกเลิก issue แล้ว " +
-                            "\n Date : " + DateTime.Now.ToString() 
-                            , 0, 0);
+                    LineNotify(
+                    "\n Ticket No : " + files[0].ticketid +
+                    "\n ลูกค้าได้ยกเลิก issue แล้ว " +
+                    "\n Date : " + DateTime.Now.ToString()
+                    , 0, 0);
 
                 }
                 return res_db;
@@ -425,13 +457,13 @@ namespace issue_api.Controllers
                     IEnumerable<res> key = await conn.QueryAsync<res>("Updatefeedback_pass_byid", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
 
-                    var issue = await issueAsync(files[0].ticketid);
-                    var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
-                    var isasd = "[" + resString + "]";
-                    JArray jsonArray = JArray.Parse(isasd);
-                    string company = (string)jsonArray[0]["Value"][0]["company"];
-                    string issuelog = (string)jsonArray[0]["Value"][0]["question"];
-                    Console.WriteLine(company); // Output: test customer
+                    // var issue = await issueAsync(files[0].ticketid);
+                    // var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
+                    // var isasd = "[" + resString + "]";
+                    // JArray jsonArray = JArray.Parse(isasd);
+                    // string company = (string)jsonArray[0]["Value"][0]["company"];
+                    // string issuelog = (string)jsonArray[0]["Value"][0]["question"];
+                    // Console.WriteLine(company); // Output: test customer
 
                     LineNotify(
                            "\n✅ CLOSED " +
@@ -471,12 +503,12 @@ namespace issue_api.Controllers
                     IEnumerable<res> key = await conn.QueryAsync<res>("Updatefeedback_fail_byid", productParam, commandType: CommandType.StoredProcedure);
                     res_db = key.ToList();
 
-                    var issue = await issueAsync(files[0].ticketid);
-                    var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
-                    var isasd = "[" + resString + "]";
-                    JArray jsonArray = JArray.Parse(isasd);
-                    string company = (string)jsonArray[0]["Value"][0]["company"];
-                    Console.WriteLine(company); // Output: test customer
+                    // var issue = await issueAsync(files[0].ticketid);
+                    // var resString = JsonConvert.SerializeObject(issue, Formatting.Indented);
+                    // var isasd = "[" + resString + "]";
+                    // JArray jsonArray = JArray.Parse(isasd);
+                    // string company = (string)jsonArray[0]["Value"][0]["company"];
+                    // Console.WriteLine(company); // Output: test customer
 
                     LineNotify(
                             "\n⏳ Pending " +
@@ -790,7 +822,6 @@ namespace issue_api.Controllers
                                     dbo.[user] US ON US.user_id = CA.user_id
                                     WHERE case_name='" + case_name + "'";
                 var result = await conn.QueryAsync<res_to_email>(sqlText);
-                Console.WriteLine("มาแล้วว" + result);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -896,9 +927,6 @@ namespace issue_api.Controllers
             if (!exists)
                 System.IO.Directory.CreateDirectory(dirName);
         }
-
-
-
 
 
 

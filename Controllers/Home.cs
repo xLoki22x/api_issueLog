@@ -51,6 +51,36 @@ namespace issue_api.Controllers
             }
         }
 
+        [HttpPost("Getissue_byid_status")]
+        public async Task<dynamic> Getissue_byid_status([FromBody] req_issue_id[] files)
+        {
+            try
+            {
+                //string res = JsonConvert.SerializeObject(files[0]);
+
+                List<res_status> res_db;
+
+                var productParam = new DynamicParameters();
+                foreach (req_issue_id item in files)
+                {
+
+                    productParam.Add("@id", files[0].id);
+
+                }
+                using (IDbConnection conn = _connection)
+                {
+                    IEnumerable<res_status> key = await conn.QueryAsync<res_status>("issuelog_by_id_status", productParam, commandType: CommandType.StoredProcedure);
+                    res_db = key.ToList();
+                }
+                return res_db;
+
+            }
+            catch (System.Exception ex)
+            {
+                return "Error" + ex.ToString();
+            }
+        }
+
 
         [HttpGet("get_client")]
         public async Task<IActionResult> getclientAsync()
