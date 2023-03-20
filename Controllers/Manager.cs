@@ -231,6 +231,7 @@ namespace issue_api.Controllers
                     productParam.Add("@team", files[0].team);
                     productParam.Add("@codename", files[0].sname);
                     productParam.Add("@exp", files[0].exp);
+                    productParam.Add("@statusactive", files[0].status);
 
      
                     Console.WriteLine("Standard Numeric Format Specifiers",files[0].userid);
@@ -284,6 +285,7 @@ namespace issue_api.Controllers
                     productParam.Add("@team", files[0].team);
                     productParam.Add("@codename", files[0].sname);
                     productParam.Add("@exp", files[0].exp);
+                    productParam.Add("@statusactive", files[0].status);
 
                 }
                 using (IDbConnection conn = _connection)

@@ -36,6 +36,7 @@
         public string team { get; set; }
         public string createdate { get; set; }
         public string closedate { get; set; }
+        public string closedate2 { get; set; }
         public string status { get; set; }
         public string username { get; set; }
 

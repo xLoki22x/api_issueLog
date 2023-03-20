@@ -25,6 +25,7 @@ namespace issue_api.Models{
           public string createdate { get; set; }
           public string closedate { get; set; }
           public string closedate_2 { get; set; }
+          public string programmer { get; set; }
           public string case_name { get; set; }
           public string sname { get; set; }
           public string team { get; set; }      

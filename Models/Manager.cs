@@ -33,6 +33,7 @@ namespace issue_api.Models{
         public string email8 { get; set; }
         public string email9 { get; set; }
         public string life { get; set; }
+        public string status { get; set; }
         public string expiration { get; set; }
 
     }
@@ -57,7 +58,7 @@ namespace issue_api.Models{
         public string team { get; set; }
         public string sname { get; set; }
         public string exp { get; set; }
-
+        public string status { get; set; }
     }
 
   public class res_position{
